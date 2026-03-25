@@ -140,4 +140,4 @@ richness |>
   )
 
 ggsave("richness_stack.png", width = 119, height = 73, scale = 1.2, units = "mm", bg = "white")
-ggsave("richness_stack.eps", width = 119, height = 73, scale = 1.2, units = "mm", bg = "white")
+ggsave("Fig2.eps", width = 119, height = 73, scale = 1.2, units = "mm", bg = "white")

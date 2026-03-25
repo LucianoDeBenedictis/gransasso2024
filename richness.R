@@ -13,7 +13,7 @@ library(readxl)
 
 data <- map(1:5, \(x) {
   #read all three taxa
-  read_excel("Data2024.xlsx", sheet = x) |> 
+  read_excel("data/Data2024.xlsx", sheet = x) |> 
     #pivot
     pivot_longer(-1, names_to = "species") |> 
     #rename first column

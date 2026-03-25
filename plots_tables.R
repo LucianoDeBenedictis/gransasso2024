@@ -28,11 +28,11 @@ my_theme <- function(...){
 
 
 # DATA IMPORT ----
-sheets <- loadWorkbook('Data2024.xlsx') |> 
+sheets <- loadWorkbook('data/Data2024.xlsx') |> 
   names() |> 
   set_names()
 
-data <- map(sheets, \(x) readWorkbook('Data2024.xlsx', sheet = x))
+data <- map(sheets, \(x) readWorkbook('data/Data2024.xlsx', sheet = x))
 
 # "MOST FREQUENT SPECIES" plot ----
 

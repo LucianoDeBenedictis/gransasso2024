@@ -21,6 +21,9 @@ data <- map(1:5, \(x) {
     }
   )
 
+#keep copy with separate layers
+datal <- data
+
 #first three sheets are vascular plants, join them together
 data <- bind_rows(data[1:3]) |> 
   list() |> 
@@ -35,6 +38,32 @@ data <- data |>
                             "Saproxylic fungi" = "2",
                             "Epiphytic lichens" = "3") |> 
            fct_relevel("Saproxylic fungi", after = 2),
+         #extract genus
+         genus = word(species, 1),
+         #extract epithets
+         epit = word(species, 2),
+         #extract site
+         site = substr(plot, 1, 2) |> 
+           fct_recode("Prati di Tivo" = "PR",
+                      "Incodaro" = "IN",
+                      "Venaquaro" = "VE")
+  ) |> 
+  arrange(taxon, species) |> 
+  #these were wide matrices, keep only observed entries
+  filter(value > 0)
+
+#repeat on layer data
+datal <- datal |> 
+  #bind list to single df
+  bind_rows(.id = "taxon") |> 
+  #rename IDs
+  mutate(taxon = fct_recode(taxon,
+                            "Tree" = "1",
+                            "Shrub" = "2",
+                            "Herb" = "3",
+                            "Saproxylic fungi" = "4",
+                            "Epiphytic lichens" = "5") |> 
+           fct_relevel("Saproxylic fungi", after = 4),
          #extract genus
          genus = word(species, 1),
          #extract epithets
@@ -116,12 +145,27 @@ incerta <- incerta |>
 data <- data |> 
   anti_join(incerta)
 
+datal <- datal |> 
+  anti_join(incerta)
+
 # mean richness per area --------------------------------------------------
 
 data |> 
   summarise(richness = n_distinct(species), .by = c(taxon, site, plot)) |> 
   summarise(avg = mean(richness), .by =c(taxon, site)) |> 
   mutate(avg = round(avg))
+
+# mean, min, max per layer and area ---------------------------------------
+
+datal |> 
+  summarise(richness = n_distinct(species),
+            .by = c(taxon, site, plot)) |> 
+  summarise(avg = mean(richness),
+            min = min(richness),
+            max = max(richness),
+            .by =c(taxon, site)) |> 
+  mutate(avg = round(avg)) |> 
+  arrange(taxon, site)
 
 # plot! -------------------------------------------------------------------
 

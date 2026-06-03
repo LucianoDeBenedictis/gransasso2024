@@ -43,7 +43,7 @@ get_frequency <- function(x, cutoff = 0){
     count(name) |> 
     arrange(desc(n)) |> 
     filter(n > cutoff) |> 
-    mutate(name = str_replace(name, "(?<=\\w)\\.(?=\\w)", " "))
+    mutate(name = str_replace_all(name, "(?<=\\w)\\.(?=\\w)", " "))
 }
 
 ## Plants data

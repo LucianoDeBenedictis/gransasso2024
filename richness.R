@@ -52,7 +52,7 @@ data <- data |>
 #distinct species names
 distinct(data, species) |> pull() |> sort()
 
-#taxon species richness
+#entity richness
 data |> 
   group_by(taxon) |> 
   summarise(n_distinct(species), .groups = "drop")
@@ -60,8 +60,10 @@ data |>
 #distinct genera
 distinct(data, genus) |> pull() |> sort()
 
-#taxon genus richness
+#genus richness
 data |> 
+  #Xylariaceae is not a genus, don't count
+  filter_out(genus == "Xylariaceae") |> 
   group_by(taxon) |> 
   summarise(n_distinct(genus), .groups = "drop")
 
@@ -73,7 +75,7 @@ incerta_index <- c("", "sp.", "spp.")
 
 incerta <- data |> 
   filter(epit %in% incerta_index) |> 
-  distinct(species, genus, taxon)
+  distinct(taxon, species, genus)
 
 incerta
 
@@ -103,9 +105,9 @@ data |>
   filter(n > 1) |> 
   print(n = 50)
 
-#' Of those, *Prunus* is kept because it refers to seedlings which are distinct from those of *Prunus avium*. *Lepraria* is kept because it was different from *Lepraria rigidula*, while *Physcia* and *Caloplaca* should be removed.
+#' Of those, *Lepraria* is kept because it was different from *Lepraria rigidula*, while *Physcia* and *Caloplaca* should be removed.
 
-keep_genus <- c(keep_genus$genus, "Lepraria", "Prunus")
+keep_genus <- c(keep_genus$genus, "Lepraria")
 
 #keep only those incerta
 incerta <- incerta |> 
@@ -114,13 +116,21 @@ incerta <- incerta |>
 data <- data |> 
   anti_join(incerta)
 
+# mean richness per area --------------------------------------------------
+
+data |> 
+  summarise(richness = n_distinct(species), .by = c(taxon, site, plot)) |> 
+  summarise(avg = mean(richness), .by =c(taxon, site)) |> 
+  mutate(avg = round(avg))
+
 # plot! -------------------------------------------------------------------
 
 richness <- data |>  
   group_by(site, taxon) |> 
   summarise(rich = n_distinct(species), .groups = "drop")
 
-richness
+richness |> 
+  arrange(taxon, desc(rich))
 
 richness |> 
   ggplot(aes(x = site, y = rich, fill = taxon)) +
